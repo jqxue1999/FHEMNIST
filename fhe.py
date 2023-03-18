@@ -122,7 +122,7 @@ def enc_test(context, enc_model, test_loader, criterion, kernel_shape, stride, l
         class_total[label] += 1
 
         if (idx + 1) % 50 == 0:
-            logging.info(f'[{int(np.sum(class_total))}|{len(test_loader)}]: {int(100 * class_correct[label] / class_total[label])}%')
+            logging.info(f'[{int(np.sum(class_total))}|{len(test_loader)}]: {100 * class_correct[label] / class_total[label]: .2f}%')
 
     # calculate and print avg test loss
     test_loss = test_loss / sum(class_total)
@@ -130,12 +130,12 @@ def enc_test(context, enc_model, test_loader, criterion, kernel_shape, stride, l
 
     for label in range(10):
         logging.info(
-            f'Test Accuracy of {label}: {int(100 * class_correct[label] / class_total[label])}% '
+            f'Test Accuracy of {label}: {100 * class_correct[label] / class_total[label]: .2f}% '
             f'({int(np.sum(class_correct[label]))}/{int(np.sum(class_total[label]))})'
         )
 
     logging.info(
-        f'\nTest Accuracy (Overall): {int(100 * np.sum(class_correct) / np.sum(class_total))}% '
+        f'\nTest Accuracy (Overall): {100 * np.sum(class_correct) / np.sum(class_total): .2f}% '
         f'({int(np.sum(class_correct))}/{int(np.sum(class_total))})'
     )
 
