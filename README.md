@@ -11,7 +11,7 @@
 
 ## train the model
 ```bash
-python train.py
+python -u train.py
 ```
 Then you will get the model file  at `./checkpoint/best.pt`
 
