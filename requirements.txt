@@ -1,0 +1,6 @@
+torch>=1.13.1
+torchvision>=0.14.1
+numpy>=1.23.5
+tenseal>=0.3.14
+psutil>=5.9.0
+tqdm>=4.64.1

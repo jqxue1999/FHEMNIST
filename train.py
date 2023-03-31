@@ -8,8 +8,6 @@ os.makedirs('./data', exist_ok=True)
 os.makedirs('./checkpoint', exist_ok=True)
 
 
-
-
 torch.manual_seed(73)
 
 train_data = datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor())
@@ -29,9 +27,7 @@ class ConvNet(torch.nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        # the model uses the square activation function
         x = x * x
-        # flattening while keeping the batch axis
         x = x.view(-1, 256)
         x = self.fc1(x)
         x = x * x

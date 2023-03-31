@@ -8,6 +8,7 @@ from tqdm import tqdm
 import logging
 import datetime
 import os
+import psutil
 
 
 class ConvNet(torch.nn.Module):
@@ -64,12 +65,12 @@ class EncConvNet:
         conv1_bias = [ts.ckks_vector(context, [bias]) for bias in torch_nn.conv1.bias.data.tolist()]
         self.conv1 = {'weight': conv1_weight, 'bias': conv1_bias}
 
-        fc1_weight = [ts.ckks_vector(context, torch_nn.fc1.weight.data[i].reshape(-1).tolist()) for i in
+        fc1_weight = [ts.ckks_vector(context, torch_nn.fc1.weight.data[i].tolist()) for i in
                       range(torch_nn.fc1.weight.data.shape[0])]
         fc1_bias = [ts.ckks_vector(context, [bias]) for bias in torch_nn.fc1.bias.data.tolist()]
         self.fc1 = {'weight': fc1_weight, 'bias': fc1_bias}
 
-        fc2_weight = [ts.ckks_vector(context, torch_nn.fc2.weight.data[i].reshape(-1).tolist()) for i in
+        fc2_weight = [ts.ckks_vector(context, torch_nn.fc2.weight.data[i].tolist()) for i in
                       range(torch_nn.fc2.weight.data.shape[0])]
         fc2_bias = [ts.ckks_vector(context, [bias]) for bias in torch_nn.fc2.bias.data.tolist()]
         self.fc2 = {'weight': fc2_weight, 'bias': fc2_bias}
@@ -95,14 +96,11 @@ class EncConvNet:
 
 
 def enc_test(context, enc_model, test_loader, criterion, kernel_shape, stride, logging):
-    # initialize lists to monitor test loss and accuracy
     test_loss = 0.0
     class_correct = list(0. for i in range(10))
     class_total = list(0. for i in range(10))
 
     for idx, (data, target) in enumerate(tqdm(test_loader)):
-        # Encoding and encryption
-        # Encrypted evaluation
         enc_output = enc_model(data)
         # Decryption of result
         output = enc_output.decrypt()
@@ -155,6 +153,7 @@ if __name__ == '__main__':
     logging.info('start')
 
     # model and dataset
+    print(u'Memory usage of the current process: %.4f GB' % (psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024 / 1024))
     model = torch.load("./checkpoint/best.pt")
     torch.manual_seed(73)
     train_data = datasets.MNIST('data', train=True, download=True, transform=transforms.ToTensor())
@@ -175,6 +174,7 @@ if __name__ == '__main__':
     context = ts.context(ts.SCHEME_TYPE.CKKS, poly_mod_degree, -1, coeff_mod_bit_sizes)
     context.global_scale = 2 ** 40
     context.generate_galois_keys()
+    print(u'Memory usage of the current process: %.4f GB' % (psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024 / 1024))
     # test
     enc_model = EncConvNet(model, context)
     enc_test(context, enc_model, test_loader, criterion, kernel_shape, stride, logging)
